@@ -25,7 +25,7 @@
     },
     remaining(s, groupId) {
       const g = s.groups.find((g) => g.id === groupId);
-      return (g?.budget || 50000) - D.expenses(s, groupId);
+      return (g?.budget ?? 50000) - D.expenses(s, groupId);
     },
     venueConflict(s, r) {
       return s.reservations.some(
