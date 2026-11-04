@@ -107,7 +107,8 @@
       return true;
     },
     nextId(rows, prefix) {
-      return prefix + String(rows.length + 1).padStart(2, "0");
+      const used = rows.map((r) => Number(String(r.id).slice(prefix.length)) || 0);
+      return prefix + String(Math.max(0, ...used) + 1).padStart(2, "0");
     },
     csv(rows, keys) {
       return [
