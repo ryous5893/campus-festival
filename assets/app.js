@@ -421,7 +421,7 @@
   }
   function openEditor(p, id) {
     const original = id ? state[p].find((r) => r.id === id) : null;
-    let row = original ? D.editCopy(original) : {};
+    let row = original ? (p === "groups" ? { ...original } : D.editCopy(original)) : {};
     if (p === "expenses" && original) row = D.expenseForEdit(original);
     editing = { p, id, row, original };
     $("#form-error").textContent = "";
