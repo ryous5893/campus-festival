@@ -536,8 +536,12 @@
         (b) =>
           (b.onclick = () => {
             if (!confirm("このデータを削除しますか？")) return;
-            if (p === "groups") D.deleteGroup(state, b.dataset.delete);
-            else state[p] = state[p].filter((r) => r.id !== b.dataset.delete);
+            if (p === "groups") {
+              if (!D.deleteGroup(state, b.dataset.delete)) {
+                toast("関連する記録がある団体は削除できません");
+                return;
+              }
+            } else state[p] = state[p].filter((r) => r.id !== b.dataset.delete);
             save(pages[p][1] + "を削除しました");
             render();
           }),

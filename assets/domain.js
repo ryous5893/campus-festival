@@ -24,7 +24,7 @@
     },
     remaining(s, groupId) {
       const g = s.groups.find((g) => g.id === groupId);
-      return (g?.budget || 50000) - D.expenses(s);
+      return (g?.budget || 50000) - D.expenses(s, groupId);
     },
     venueConflict(s, r) {
       return s.reservations.some(
@@ -88,6 +88,16 @@
       if (a) a.status = "cancelled";
     },
     deleteGroup(s, id) {
+      const used = [
+        "applications",
+        "reservations",
+        "loans",
+        "expenses",
+        "shifts",
+        "tasks",
+        "notices",
+      ].some((k) => s[k].some((r) => r.groupId === id));
+      if (used) return false;
       s.groups = s.groups.filter((g) => g.id !== id);
       return true;
     },
