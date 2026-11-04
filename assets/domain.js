@@ -19,6 +19,7 @@
     },
     expenses(s, groupId) {
       return s.expenses
+        .filter((x) => x.status !== "rejected")
         .filter((x) => !groupId || x.groupId === groupId)
         .reduce((n, x) => n + Number(x.amount), 0);
     },
