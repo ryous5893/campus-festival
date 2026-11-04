@@ -127,7 +127,7 @@
       return Math.trunc(Number(value));
     },
     overdueTasks(s, today) {
-      return s.tasks.filter((t) => D.overdue(t, today));
+      return s.tasks.filter((t) => t.status !== "done" && D.overdue(t, today));
     },
     capacityExceeded(count, capacity) {
       return Number(count) >= Number(capacity);
