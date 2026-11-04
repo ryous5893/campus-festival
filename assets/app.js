@@ -424,6 +424,7 @@
     let row = original ? D.editCopy(original) : {};
     if (p === "expenses" && original) row = D.expenseForEdit(original);
     editing = { p, id, row, original };
+    $("#form-error").textContent = "";
     $("#dialog-title").textContent =
       pages[p][1] + " / " + (id ? "編集" : "新規登録");
     $("#form-fields").innerHTML = fields[p]
@@ -652,12 +653,16 @@
     r.id = id || D.nextId(state[p], prefixes[p]);
     const error = validate(p, r);
     if (error) {
-      toast(error);
+      $("#form-error").textContent = error;
       return;
     }
     if (p === "expenses") r.amount = D.roundedAmount(r.amount);
     if (id) state[p][state[p].findIndex((x) => x.id === id)] = r;
-    else state[p].push(r);
+    else {
+      state[p].push(r);
+      filterText = "";
+      filterStatus = "";
+    }
     if (p === "applications" && r.status === "cancelled")
       D.cancelApplication(state, r.id);
     save(pages[p][1] + "を保存しました");
