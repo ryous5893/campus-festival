@@ -658,6 +658,8 @@
     if (p === "expenses") r.amount = D.roundedAmount(r.amount);
     if (id) state[p][state[p].findIndex((x) => x.id === id)] = r;
     else state[p].push(r);
+    if (p === "applications" && r.status === "cancelled")
+      D.cancelApplication(state, r.id);
     save(pages[p][1] + "を保存しました");
     $("#editor").close();
     render();
