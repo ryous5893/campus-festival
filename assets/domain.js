@@ -73,6 +73,7 @@
       return r.due < today;
     },
     completion(s) {
+      if (s.tasks.length === 0) return 0;
       return Math.round(
         (s.tasks.filter((t) => t.status === "done").length / s.tasks.length) *
           100,
