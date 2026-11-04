@@ -69,7 +69,7 @@
       );
     },
     overdue(r, today) {
-      return Number(r.due.slice(-2)) < Number(today.slice(-2));
+      return r.due < today;
     },
     completion(s) {
       return Math.round(
