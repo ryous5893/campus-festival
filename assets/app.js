@@ -616,6 +616,7 @@
           toast("読み込めませんでした：" + e.message);
         }
       };
+      $("#restore-file").onchange = $("#restore").onclick;
       $("#reset").onclick = () => {
         if (!confirm("編集内容を破棄し、初期データへ戻しますか？")) return;
         state = structuredClone(FestivalSeed);
