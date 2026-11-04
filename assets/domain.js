@@ -85,7 +85,11 @@
     },
     cancelApplication(s, id) {
       const a = s.applications.find((a) => a.id === id);
-      if (a) a.status = "cancelled";
+      if (!a) return;
+      a.status = "cancelled";
+      s.reservations
+        .filter((r) => r.applicationId === id)
+        .forEach((r) => (r.status = "cancelled"));
     },
     deleteGroup(s, id) {
       s.groups = s.groups.filter((g) => g.id !== id);
