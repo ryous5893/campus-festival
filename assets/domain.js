@@ -55,6 +55,8 @@
     validateExpense(r) {
       if (!Number.isFinite(Number(r.amount)))
         return "金額は数値で入力してください";
+      if (!Number.isInteger(Number(r.amount)))
+        return "金額は整数で入力してください";
       return "";
     },
     validateTime(r) {
