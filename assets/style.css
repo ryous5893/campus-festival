@@ -460,6 +460,14 @@ dialog::backdrop {
   color: var(--muted);
   font-size: 10px;
 }
+#form-error {
+  margin: 16px 0 0;
+  color: #a34426;
+  font-weight: 600;
+}
+#form-error:empty {
+  display: none;
+}
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
