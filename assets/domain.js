@@ -13,9 +13,7 @@
       );
     },
     pending(s) {
-      return s.applications.filter(
-        (a) => a.status === "submitted" || a.status === "draft",
-      ).length;
+      return s.applications.filter((a) => a.status === "submitted").length;
     },
     expenses(s, groupId) {
       return s.expenses
