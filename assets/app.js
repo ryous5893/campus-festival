@@ -421,9 +421,10 @@
   }
   function openEditor(p, id) {
     const original = id ? state[p].find((r) => r.id === id) : null;
-    let row = original ? D.editCopy(original) : {};
+    let row = original ? (p === "groups" ? { ...original } : D.editCopy(original)) : {};
     if (p === "expenses" && original) row = D.expenseForEdit(original);
     editing = { p, id, row, original };
+    $("#form-error").textContent = "";
     $("#dialog-title").textContent =
       pages[p][1] + " / " + (id ? "編集" : "新規登録");
     $("#form-fields").innerHTML = fields[p]
@@ -536,8 +537,12 @@
         (b) =>
           (b.onclick = () => {
             if (!confirm("このデータを削除しますか？")) return;
-            if (p === "groups") D.deleteGroup(state, b.dataset.delete);
-            else state[p] = state[p].filter((r) => r.id !== b.dataset.delete);
+            if (p === "groups") {
+              if (!D.deleteGroup(state, b.dataset.delete)) {
+                toast("関連する記録がある団体は削除できません");
+                return;
+              }
+            } else state[p] = state[p].filter((r) => r.id !== b.dataset.delete);
             save(pages[p][1] + "を削除しました");
             render();
           }),
@@ -616,6 +621,7 @@
           toast("読み込めませんでした：" + e.message);
         }
       };
+      $("#restore-file").onchange = $("#restore").onclick;
       $("#reset").onclick = () => {
         if (!confirm("編集内容を破棄し、初期データへ戻しますか？")) return;
         state = structuredClone(FestivalSeed);
@@ -647,12 +653,18 @@
     r.id = id || D.nextId(state[p], prefixes[p]);
     const error = validate(p, r);
     if (error) {
-      toast(error);
+      $("#form-error").textContent = error;
       return;
     }
     if (p === "expenses") r.amount = D.roundedAmount(r.amount);
     if (id) state[p][state[p].findIndex((x) => x.id === id)] = r;
-    else state[p].push(r);
+    else {
+      state[p].push(r);
+      filterText = "";
+      filterStatus = "";
+    }
+    if (p === "applications" && r.status === "cancelled")
+      D.cancelApplication(state, r.id);
     save(pages[p][1] + "を保存しました");
     $("#editor").close();
     render();

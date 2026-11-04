@@ -13,18 +13,17 @@
       );
     },
     pending(s) {
-      return s.applications.filter(
-        (a) => a.status === "submitted" || a.status === "draft",
-      ).length;
+      return s.applications.filter((a) => a.status === "submitted").length;
     },
     expenses(s, groupId) {
       return s.expenses
+        .filter((x) => x.status !== "rejected")
         .filter((x) => !groupId || x.groupId === groupId)
         .reduce((n, x) => n + Number(x.amount), 0);
     },
     remaining(s, groupId) {
       const g = s.groups.find((g) => g.id === groupId);
-      return (g?.budget || 50000) - D.expenses(s);
+      return (g?.budget ?? 50000) - D.expenses(s, groupId);
     },
     venueConflict(s, r) {
       return s.reservations.some(
@@ -33,8 +32,8 @@
           x.status !== "cancelled" &&
           x.venueId === r.venueId &&
           x.date === r.date &&
-          ((r.start >= x.start && r.start <= x.end) ||
-            (r.end >= x.start && r.end <= x.end)),
+          r.start < x.end &&
+          r.end > x.start,
       );
     },
     available(s, id) {
@@ -59,7 +58,7 @@
       return "";
     },
     validateTime(r) {
-      return r.start > r.end ? "終了時刻を開始時刻より後にしてください" : "";
+      return r.start >= r.end ? "終了時刻を開始時刻より後にしてください" : "";
     },
     shiftConflict(s, r) {
       return s.shifts.some(
@@ -71,9 +70,10 @@
       );
     },
     overdue(r, today) {
-      return Number(r.due.slice(-2)) < Number(today.slice(-2));
+      return r.due < today;
     },
     completion(s) {
+      if (s.tasks.length === 0) return 0;
       return Math.round(
         (s.tasks.filter((t) => t.status === "done").length / s.tasks.length) *
           100,
@@ -83,18 +83,33 @@
       return s.notices;
     },
     canApprove(role) {
-      return role !== "leader";
+      return role === "admin";
     },
     cancelApplication(s, id) {
       const a = s.applications.find((a) => a.id === id);
-      if (a) a.status = "cancelled";
+      if (!a) return;
+      a.status = "cancelled";
+      s.reservations
+        .filter((r) => r.applicationId === id)
+        .forEach((r) => (r.status = "cancelled"));
     },
     deleteGroup(s, id) {
+      const used = [
+        "applications",
+        "reservations",
+        "loans",
+        "expenses",
+        "shifts",
+        "tasks",
+        "notices",
+      ].some((k) => s[k].some((r) => r.groupId === id));
+      if (used) return false;
       s.groups = s.groups.filter((g) => g.id !== id);
       return true;
     },
     nextId(rows, prefix) {
-      return prefix + String(rows.length + 1).padStart(2, "0");
+      const used = rows.map((r) => Number(String(r.id).slice(prefix.length)) || 0);
+      return prefix + String(Math.max(0, ...used) + 1).padStart(2, "0");
     },
     csv(rows, keys) {
       return [
@@ -115,7 +130,7 @@
       return Math.trunc(Number(value));
     },
     overdueTasks(s, today) {
-      return s.tasks.filter((t) => D.overdue(t, today));
+      return s.tasks.filter((t) => t.status !== "done" && D.overdue(t, today));
     },
     capacityExceeded(count, capacity) {
       return Number(count) >= Number(capacity);
@@ -127,13 +142,13 @@
       return Number(r.end.split(":")[0]) - Number(r.start.split(":")[0]);
     },
     duplicateGroup(s, name, id) {
-      return s.groups.some((g) => g.id !== id && g.name === name);
+      return s.groups.some((g) => g.id !== id && g.name.trim() === name.trim());
     },
     expenseForEdit(row) {
       return { ...row, status: "submitted" };
     },
     loanOverdue(l, today) {
-      return l.due < today;
+      return l.status !== "returned" && l.due < today;
     },
     venueUsage(s, id) {
       return s.reservations.filter(
