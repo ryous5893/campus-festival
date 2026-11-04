@@ -493,7 +493,7 @@
         D.available(state, r.equipmentId) +
         (previous &&
         previous.equipmentId === r.equipmentId &&
-        previous.status === "active"
+        previous.status !== "reserved"
           ? Number(previous.quantity)
           : 0);
       if (r.status !== "returned" && r.quantity > allowance)
