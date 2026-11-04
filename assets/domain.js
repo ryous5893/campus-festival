@@ -146,7 +146,7 @@
       return { ...row, status: "submitted" };
     },
     loanOverdue(l, today) {
-      return l.due < today;
+      return l.status !== "returned" && l.due < today;
     },
     venueUsage(s, id) {
       return s.reservations.filter(
