@@ -140,7 +140,7 @@
       return Number(r.end.split(":")[0]) - Number(r.start.split(":")[0]);
     },
     duplicateGroup(s, name, id) {
-      return s.groups.some((g) => g.id !== id && g.name === name);
+      return s.groups.some((g) => g.id !== id && g.name.trim() === name.trim());
     },
     expenseForEdit(row) {
       return { ...row, status: "submitted" };
