@@ -33,8 +33,8 @@
           x.status !== "cancelled" &&
           x.venueId === r.venueId &&
           x.date === r.date &&
-          ((r.start >= x.start && r.start <= x.end) ||
-            (r.end >= x.start && r.end <= x.end)),
+          r.start < x.end &&
+          r.end > x.start,
       );
     },
     available(s, id) {
