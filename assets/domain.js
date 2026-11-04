@@ -81,7 +81,7 @@
       return s.notices;
     },
     canApprove(role) {
-      return role !== "leader";
+      return role === "admin";
     },
     cancelApplication(s, id) {
       const a = s.applications.find((a) => a.id === id);
